@@ -1,0 +1,78 @@
+spring:
+  datasource:
+    username: root
+    password: zu123
+    url: jdbc:mysql://localhost:3306/holiday_data?createDatabaseIfNotExist=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+    show-sql: true
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+#      file-size-threshold: 2KB
+      enabled: true
+security:
+  jwt:
+    secret: "XjL9i3dQkH7aS1oBqZ4mT8vWcE2pR6uY"
+    expiration: 900000
+
+management:
+  health:
+    circuitbreaker:
+      enabled: true
+
+endpoints:
+     web:
+      exposure:
+            include: health
+
+
+      endpoints:
+        health:
+          show-details: always
+
+resilience4j:
+       circuitbreaker:
+         instances:
+           ratingHotelBreaker:
+             registerHealthIndicator: true   #this check health of application with the help of actuatuter
+             eventConsumerBufferSize: 10
+             failureRateThreshold: 50
+             minimumNumberOfCalls: 5
+             automaticTransitionFromOpenToHalfOpenEnabled: true
+             waitDurationInOpenState: 6s
+             permittedNumberOfCallsInHalfOpenState: 3
+             slidingWindowSize: 10
+             slidingWindowType: COUNT_BASED
+ratelimiter:
+         instances:
+           userRateLimiter:
+             limit-refresh-period: 4s
+             limit-for-period: 2
+             timeout-duration: 2s
+retry:
+        instances:
+        ratingHotelService:
+         max-attempts: 3
+        wait-duration: 5s
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:9099/eureka/
+
+
